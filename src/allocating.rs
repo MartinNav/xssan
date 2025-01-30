@@ -52,29 +52,29 @@ impl AllocatingSanitizer for String {
 /// let result = remove_html_tags("This is an <i>bold text</i> example.");
 /// assert_eq!(result, "This is an bold text example.");
 /// ```
-pub fn remove_html_tags<T:Into<String>>(input:T)->String{
+pub fn remove_html_tags<T: Into<String>>(input: T) -> String {
     // we will search for the first < and than remove everything between it and >
-    let mut start:Option<usize>=None;
-    let mut it:usize = 0;
-    let mut input:String =input.into();
-    while it<input.len() {
-        match input[it..(it+1)].as_ref() {
-            "<"=>{
-                if start==None {
+    let mut start: Option<usize> = None;
+    let mut it: usize = 0;
+    let mut input: String = input.into();
+    while it < input.len() {
+        match input[it..(it + 1)].as_ref() {
+            "<" => {
+                if start == None {
                     start = Some(it);
                 }
             }
-            ">"=>{
+            ">" => {
                 if let Some(loc) = start {
-                    input.drain(loc..(it+1));
-                    it=loc;
+                    input.drain(loc..(it + 1));
+                    it = loc;
                     start = None;
                     continue;
                 }
             }
-           _=>{} 
+            _ => {}
         }
-        it+=1;
+        it += 1;
     }
     input
 }
@@ -120,4 +120,3 @@ mod tests_allocating {
         assert_eq!("hi!".to_string(), remove_html_tags(s));
     }
 }
-
