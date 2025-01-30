@@ -1,5 +1,5 @@
 //! # Allocating
-//! This file contains functions that may allocate more memmory and may increase the size of the
+//! This module contains functions that may allocate more memmory and may increase the size of the
 //! string containing the text being sanitized.
 
 pub fn sanitize_string<T: Into<String>>(input: T) -> String {
