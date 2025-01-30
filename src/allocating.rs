@@ -1,4 +1,4 @@
-//! # Allocating
+//! # Allocating sanitization functions
 //! This module contains functions that may allocate more memmory and may increase the size of the
 //! string containing the text being sanitized.
 
@@ -24,18 +24,34 @@ pub trait AllocatingSanitizer {
     /// //this string when appended to html will cause execution of malicious javascript
     /// let a = "<script>alert(0);</script>".to_string();
     /// // this one not
-    /// use xssan::allocating::*;
+    /// use xssan::allocating::AllocatingSanitizer;
     /// let a = "<script>alert(0);</script>".to_string().sanitize();
     /// ```
     fn sanitize(&mut self);
 }
 impl AllocatingSanitizer for String {
+    /// # Example
+    /// ```
+    /// use xssan::allocating::AllocatingSanitizer;
+    /// let a = "<script>alert(0);</script>".to_string().sanitize();
+    /// ```
     fn sanitize(&mut self) {
         *self = self.replace('<', "&lt;").replace('<', "&rt;");
     }
 }
 
-
+/// This function removes all html tags from the string.
+/// # Examples
+/// ```
+/// use xssan::allocating::remove_html_tags;
+/// // Removes the <b> tag from the input string.
+/// let result = remove_html_tags("Hello <b>world!</b>");
+/// assert_eq!(result, "Hello world!");
+///
+/// // Removes the <i> tag from the input string.
+/// let result = remove_html_tags("This is an <i>bold text</i> example.");
+/// assert_eq!(result, "This is an bold text example.");
+/// ```
 pub fn remove_html_tags<T:Into<String>>(input:T)->String{
     // we will search for the first < and than remove everything between it and >
     let mut start:Option<usize>=None;
