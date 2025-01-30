@@ -41,6 +41,8 @@ impl AllocatingSanitizer for String {
 }
 
 /// This function removes all html tags from the string.
+/// As html tag is considered any substring starting with `<` and ending with `>`.
+/// Everything in between these characters will be deleted.
 /// # Examples
 /// ```
 /// use xssan::allocating::remove_html_tags;
@@ -102,12 +104,12 @@ mod tests_allocating {
     #[test]
     fn remove_html_tags_2() {
         let s = "<h1<>>hi!</h1>".to_string();
-        assert_eq!("hi!".to_string(), remove_html_tags(s));
+        assert_eq!(">hi!".to_string(), remove_html_tags(s));
     }
     #[test]
     fn remove_html_tags_3() {
         let s = "<h1<p>>hi!</h1>".to_string();
-        assert_eq!("hi!".to_string(), remove_html_tags(s));
+        assert_eq!(">hi!".to_string(), remove_html_tags(s));
     }
     #[test]
     fn remove_html_tags_4() {
@@ -118,5 +120,15 @@ mod tests_allocating {
     fn remove_html_tags_5() {
         let s = "<h1 onclick=\"alert(0)\"><p>hi!</p></h1>".to_string();
         assert_eq!("hi!".to_string(), remove_html_tags(s));
+    }
+    #[test]
+    fn remove_html_tags_6() {
+        let s = "<h1<<<<<<<>>>>>>>hi!</h1>".to_string();
+        assert_eq!(">>>>>>hi!".to_string(), remove_html_tags(s));
+    }
+    #[test]
+    fn remove_html_tags_7() {
+        let s = "<<<<<<<hi!".to_string();
+        assert_eq!("<<<<<<<hi!".to_string(), remove_html_tags(s));
     }
 }
