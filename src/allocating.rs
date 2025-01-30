@@ -3,6 +3,17 @@ pub fn sanitize_string<T:Into<String>>(input:T)->String{
     a.replace('<', "&lt;").replace('>', "&rt;")
 }
 pub trait AllocatingSanitizer {
+    /// This funcion will replace all occurencies of `<` and `>` with `&lt;` and `&rt;` so they
+    /// will look when rendered by browser like regular versions of them self's but can not be used
+    /// to execute JS
+    /// # Examples
+    /// ```
+    /// //this string when appended to html will cause execution of malicious javascript 
+    /// let a = "<script>alert(0);</script>".to_string();
+    /// // this one not
+    /// use xssan::allocating::*;
+    /// let a = "<script>alert(0);</script>".to_string().sanitize();
+    /// ```
     fn sanitize(&mut self);
 }
 impl AllocatingSanitizer for String{
