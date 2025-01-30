@@ -1,5 +1,9 @@
-pub fn sanitize_string<T:Into<String>>(input:T)->String{
-    let a:String = input.into();
+//! # Allocating
+//! This file contains functions that may allocate more memmory and may increase the size of the
+//! string containing the text being sanitized.
+
+pub fn sanitize_string<T: Into<String>>(input: T) -> String {
+    let a: String = input.into();
     a.replace('<', "&lt;").replace('>', "&rt;")
 }
 pub trait AllocatingSanitizer {
@@ -8,7 +12,7 @@ pub trait AllocatingSanitizer {
     /// to execute JS
     /// # Examples
     /// ```
-    /// //this string when appended to html will cause execution of malicious javascript 
+    /// //this string when appended to html will cause execution of malicious javascript
     /// let a = "<script>alert(0);</script>".to_string();
     /// // this one not
     /// use xssan::allocating::*;
@@ -16,9 +20,9 @@ pub trait AllocatingSanitizer {
     /// ```
     fn sanitize(&mut self);
 }
-impl AllocatingSanitizer for String{
-    fn sanitize(&mut self){
-        *self=self.replace('<', "&lt;").replace('<', "&rt;");
+impl AllocatingSanitizer for String {
+    fn sanitize(&mut self) {
+        *self = self.replace('<', "&lt;").replace('<', "&rt;");
     }
 }
 #[cfg(test)]
@@ -28,6 +32,6 @@ mod tests_allocating {
     #[test]
     fn sanitize_string_allocating() {
         let s = "<h1>hi!</h1>".to_string();
-        assert_eq!("&lt;h1&rt;hi!&lt;/h1&rt;".to_string(),sanitize_string(s));
+        assert_eq!("&lt;h1&rt;hi!&lt;/h1&rt;".to_string(), sanitize_string(s));
     }
 }
