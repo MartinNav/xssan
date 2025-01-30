@@ -2,5 +2,8 @@
 name = "xssan"
 version = "0.0.1"
 edition = "2021"
+authors = ["Martin Navrátil"]
+description = "Crate that sanitizes HTML to prevent XSS vulnerabilities."
+license = "MIT"
 
 [dependencies]
