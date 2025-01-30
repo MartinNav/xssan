@@ -53,6 +53,7 @@ pub fn remove_html_tags<T:Into<String>>(input:T)->String{
                     input.drain(loc..(it+1));
                     it=loc;
                     start = None;
+                    continue;
                 }
             }
            _=>{} 
@@ -95,6 +96,11 @@ mod tests_allocating {
     #[test]
     fn remove_html_tags_4() {
         let s = "<h1 onclick=\"alert(0)\">hi!</h1>".to_string();
+        assert_eq!("hi!".to_string(), remove_html_tags(s));
+    }
+    #[test]
+    fn remove_html_tags_5() {
+        let s = "<h1 onclick=\"alert(0)\"><p>hi!</p></h1>".to_string();
         assert_eq!("hi!".to_string(), remove_html_tags(s));
     }
 }
