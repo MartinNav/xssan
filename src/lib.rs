@@ -18,4 +18,5 @@ pub mod fast;
 /// ```
 pub mod prelude{
     pub use crate::allocating::*;
+    pub use crate::fast::*;
 }

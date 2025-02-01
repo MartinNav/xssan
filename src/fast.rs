@@ -14,3 +14,16 @@ pub fn remove_brackets<T:Into<String>>(input:T)->String{
     let input:String = input.into();
     input.chars().filter(|x| !(*x=='<'||*x=='>')).collect::<String>()
 }
+#[cfg(test)]
+mod test_fast{
+    use super::*;
+
+    #[test]
+    fn sanitize_string_0() {
+        assert_eq!("h1hello/h1", remove_brackets("<h1>hello</h1>"));
+    }
+    #[test]
+    fn sanitize_string_1() {
+        assert_eq!("h1hello/h1", remove_brackets("<<<<<h1>>>>>hello</h1>"));
+    }
+}

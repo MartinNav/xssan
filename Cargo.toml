@@ -1,6 +1,6 @@
 [package]
 name = "xssan"
-version = "0.1.1"
+version = "0.2.0"
 edition = "2021"
 authors = ["Martin Navrátil"]
 description = "Crate that sanitizes HTML to prevent XSS vulnerabilities."
