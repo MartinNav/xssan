@@ -1,5 +1,9 @@
+/// These sanitization techniques may allocate more memory for the result than was allocated before
+/// for source string
 pub mod allocating;
-pub mod nonallocating;
+/// These techniques are made to be really fast but the result may not be as pretty as you
+/// expected it to be with the allocating techniques.
+pub mod fast;
 /// # Examples
 /// ```
 /// use xssan::prelude::*;
