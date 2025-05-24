@@ -59,6 +59,7 @@ pub fn remove_html_tags<T: Into<String>>(input: T) -> String {
     let mut start: Option<usize> = None;
     let mut it: usize = 0;
     let mut input: String = input.into();
+    let mut last_closing: Option<usize> = None;
     while it < input.len() {
         match input[it..(it + 1)].as_ref() {
             "<" => {
@@ -70,6 +71,13 @@ pub fn remove_html_tags<T: Into<String>>(input: T) -> String {
                 if let Some(loc) = start {
                     input.drain(loc..(it + 1));
                     it = loc;
+                    start = None;
+                    last_closing=Some(loc);
+                    continue;
+                }
+                if let Some(last_c) = last_closing {
+                    input.drain(last_c..(it+1));
+                    it=last_c;
                     start = None;
                     continue;
                 }
@@ -192,17 +200,17 @@ mod tests_allocating {
     #[test]
     fn remove_html_tags_1() {
         let s = "<h1>>hi!</h1>".to_string();
-        assert_eq!(">hi!".to_string(), remove_html_tags(s));
+        assert_eq!("hi!".to_string(), remove_html_tags(s));
     }
     #[test]
     fn remove_html_tags_2() {
         let s = "<h1<>>hi!</h1>".to_string();
-        assert_eq!(">hi!".to_string(), remove_html_tags(s));
+        assert_eq!("hi!".to_string(), remove_html_tags(s));
     }
     #[test]
     fn remove_html_tags_3() {
         let s = "<h1<p>>hi!</h1>".to_string();
-        assert_eq!(">hi!".to_string(), remove_html_tags(s));
+        assert_eq!("hi!".to_string(), remove_html_tags(s));
     }
     #[test]
     fn remove_html_tags_4() {
@@ -217,7 +225,7 @@ mod tests_allocating {
     #[test]
     fn remove_html_tags_6() {
         let s = "<h1<<<<<<<>>>>>>>hi!</h1>".to_string();
-        assert_eq!(">>>>>>hi!".to_string(), remove_html_tags(s));
+        assert_eq!("hi!".to_string(), remove_html_tags(s));
     }
     #[test]
     fn remove_html_tags_7() {
@@ -271,14 +279,14 @@ mod tests_allocating {
     #[test]
     fn remove_html_tags_only_opening_tag() {
         let s = "<h1>".to_string();
-        assert_eq!("<h1>".to_string(), remove_html_tags(s));
+        assert_eq!("".to_string(), remove_html_tags(s));
     }
 
     // Test case for remove_html_tags with only a closing tag.
     #[test]
     fn remove_html_tags_only_closing_tag() {
         let s = "</h1>".to_string();
-        assert_eq!("</h1>".to_string(), remove_html_tags(s));
+        assert_eq!("".to_string(), remove_html_tags(s));
     }
 
     // Test case for remove_html_tags with self-closing tags.
@@ -348,42 +356,42 @@ mod tests_allocating {
     #[test]
     fn remove_html_tags_standalone_br() {
         let s = "<br>".to_string();
-        assert_eq!("<br>".to_string(), remove_html_tags(s));
+        assert_eq!("".to_string(), remove_html_tags(s));
     }
 
     // Tests if a standalone, non-standard </br> closing tag is preserved.
     #[test]
     fn remove_html_tags_standalone_closing_br() {
         let s = "</br>".to_string();
-        assert_eq!("</br>".to_string(), remove_html_tags(s));
+        assert_eq!("".to_string(), remove_html_tags(s));
     }
 
     // Tests if a standalone opening tag within text is preserved.
     #[test]
     fn remove_html_tags_text_with_standalone_opening_tag() {
         let s = "Hello <p> world".to_string();
-        assert_eq!("Hello <p> world".to_string(), remove_html_tags(s));
+        assert_eq!("Hello  world".to_string(), remove_html_tags(s));
     }
 
     // Tests if a standalone closing tag within text is preserved.
     #[test]
     fn remove_html_tags_text_with_standalone_closing_tag() {
         let s = "Hello </p> world".to_string();
-        assert_eq!("Hello </p> world".to_string(), remove_html_tags(s));
+        assert_eq!("Hello  world".to_string(), remove_html_tags(s));
     }
 
     // Tests multiple incomplete (opening) tags.
     #[test]
     fn remove_html_tags_mixed_incomplete_tags() {
         let s = "<a><b><c".to_string();
-        assert_eq!("<a><b><c".to_string(), remove_html_tags(s));
+        assert_eq!("<c".to_string(), remove_html_tags(s));
     }
 
     // Tests an incomplete tag (<world) inside a valid tag (<p>...</p>).
     #[test]
     fn remove_html_tags_valid_tag_with_incomplete_tag_inside() {
         let s = "<p>Hello <world</p>".to_string();
-        assert_eq!("Hello <world".to_string(), remove_html_tags(s));
+        assert_eq!("Hello ".to_string(), remove_html_tags(s));
     }
 
     // Tests a valid tag nested inside what is effectively an incomplete outer tag due to current parsing logic. Expects the whole string to be treated as one tag and removed.
