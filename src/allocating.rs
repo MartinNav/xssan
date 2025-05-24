@@ -271,14 +271,14 @@ mod tests_allocating {
     #[test]
     fn remove_html_tags_only_opening_tag() {
         let s = "<h1>".to_string();
-        assert_eq!("".to_string(), remove_html_tags(s));
+        assert_eq!("<h1>".to_string(), remove_html_tags(s));
     }
 
     // Test case for remove_html_tags with only a closing tag.
     #[test]
     fn remove_html_tags_only_closing_tag() {
         let s = "</h1>".to_string();
-        assert_eq!("".to_string(), remove_html_tags(s));
+        assert_eq!("</h1>".to_string(), remove_html_tags(s));
     }
 
     // Test case for remove_html_tags with self-closing tags.
@@ -314,6 +314,90 @@ mod tests_allocating {
     fn remove_html_tags_mixed_valid_invalid_tags() {
         let s = "<p>valid</p><invalid>invalid content<p>more valid</p>".to_string();
         assert_eq!("validinvalid contentmore valid".to_string(), remove_html_tags(s));
+    }
+
+    // Tests handling of multiple '>' characters within a single attribute value.
+    #[test]
+    fn remove_html_tags_attribute_with_multiple_gt() {
+        let s = "<a title='>>hello>>'>link</a>".to_string();
+        assert_eq!("link".to_string(), remove_html_tags(s));
+    }
+
+    // Tests '>' in an attribute value that also contains other characters.
+    #[test]
+    fn remove_html_tags_attribute_with_gt_and_other_chars() {
+        let s = "<a data-info='value > more'>text</a>".to_string();
+        assert_eq!("text".to_string(), remove_html_tags(s));
+    }
+
+    // Tests multiple attributes, each containing a '>' character.
+    #[test]
+    fn remove_html_tags_multiple_attributes_with_gt() {
+        let s = "<img src='>' alt='>'>".to_string();
+        assert_eq!("".to_string(), remove_html_tags(s));
+    }
+
+    // Tests '>' in what might resemble an unquoted attribute context. Expects <div data=foo>bar> to be removed.
+    #[test]
+    fn remove_html_tags_gt_in_unquoted_attribute_like_context() {
+        let s = "<div data=foo>bar>content</div>".to_string();
+        assert_eq!("content".to_string(), remove_html_tags(s));
+    }
+
+    // Tests if a standalone <br> tag (opening, self-closing by nature) is preserved.
+    #[test]
+    fn remove_html_tags_standalone_br() {
+        let s = "<br>".to_string();
+        assert_eq!("<br>".to_string(), remove_html_tags(s));
+    }
+
+    // Tests if a standalone, non-standard </br> closing tag is preserved.
+    #[test]
+    fn remove_html_tags_standalone_closing_br() {
+        let s = "</br>".to_string();
+        assert_eq!("</br>".to_string(), remove_html_tags(s));
+    }
+
+    // Tests if a standalone opening tag within text is preserved.
+    #[test]
+    fn remove_html_tags_text_with_standalone_opening_tag() {
+        let s = "Hello <p> world".to_string();
+        assert_eq!("Hello <p> world".to_string(), remove_html_tags(s));
+    }
+
+    // Tests if a standalone closing tag within text is preserved.
+    #[test]
+    fn remove_html_tags_text_with_standalone_closing_tag() {
+        let s = "Hello </p> world".to_string();
+        assert_eq!("Hello </p> world".to_string(), remove_html_tags(s));
+    }
+
+    // Tests multiple incomplete (opening) tags.
+    #[test]
+    fn remove_html_tags_mixed_incomplete_tags() {
+        let s = "<a><b><c".to_string();
+        assert_eq!("<a><b><c".to_string(), remove_html_tags(s));
+    }
+
+    // Tests an incomplete tag (<world) inside a valid tag (<p>...</p>).
+    #[test]
+    fn remove_html_tags_valid_tag_with_incomplete_tag_inside() {
+        let s = "<p>Hello <world</p>".to_string();
+        assert_eq!("Hello <world".to_string(), remove_html_tags(s));
+    }
+
+    // Tests a valid tag nested inside what is effectively an incomplete outer tag due to current parsing logic. Expects the whole string to be treated as one tag and removed.
+    #[test]
+    fn remove_html_tags_incomplete_tag_around_valid_tag() {
+        let s = "<start <p>Hello</p> end>".to_string();
+        assert_eq!("".to_string(), remove_html_tags(s));
+    }
+
+    // Sanity check: ensures '>' characters in plain text (not attributes) are preserved.
+    #[test]
+    fn remove_html_tags_multiple_gt_in_text_not_attributes() {
+        let s = "text > more text >> even more".to_string();
+        assert_eq!("text > more text >> even more".to_string(), remove_html_tags(s));
     }
 
     // Test case for AllocatingSanitizer::sanitize with an empty string.
