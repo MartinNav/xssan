@@ -271,14 +271,14 @@ mod tests_allocating {
     #[test]
     fn remove_html_tags_only_opening_tag() {
         let s = "<h1>".to_string();
-        assert_eq!("<h1>".to_string(), remove_html_tags(s));
+        assert_eq!("".to_string(), remove_html_tags(s));
     }
 
     // Test case for remove_html_tags with only a closing tag.
     #[test]
     fn remove_html_tags_only_closing_tag() {
         let s = "</h1>".to_string();
-        assert_eq!("</h1>".to_string(), remove_html_tags(s));
+        assert_eq!("".to_string(), remove_html_tags(s));
     }
 
     // Test case for remove_html_tags with self-closing tags.
